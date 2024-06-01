@@ -6,8 +6,8 @@ const CreateRoom: React.FC = () => {
     //extracting socket object in the context 
 
     function initRoom(){
+      console.log("initializing a req to create a room ")
 socket.emit("create-room");
-console.log("initializing a req to create a room ")
     }
   return (
     <>
