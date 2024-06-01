@@ -149,7 +149,13 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
         const newPeer = new Peer(userId, {
             host: "localhost",
             port: 9000,
-            path: "/myapp"
+            path: "/myapp",
+            config: {
+              iceServers: [
+                { urls: "stun:stun.l.google.com:19302" }, // Public STUN server from Google
+                // Optionally add TURN server configuration if required for specific network environments
+              ]
+            }
         });
 
         setUser(newPeer);
