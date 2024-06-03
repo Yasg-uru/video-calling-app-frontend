@@ -116,7 +116,7 @@ const WS_Server = "https://video-calling-app-backend-sigma.vercel.app";
 export const Socketcontext = createContext<any | null>(null);
 
 const socket = SocketIoClient(WS_Server, {
-    withCredentials: false,
+    withCredentials: true,
     transports: ["polling", "websocket"]
 });
 
