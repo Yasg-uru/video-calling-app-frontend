@@ -110,7 +110,7 @@ import { v4 as UUIDv4 } from "uuid";
 import { peerReducer } from "../Reducers/PeerReducer";
 import { Add_Peer_Action } from "../Actions/PeerAction";
 // const WS_Server = "http://localhost:4000";
-const WS_Server = "https://video-calling-app-backend-three.vercel.app";
+const WS_Server = "https://video-calling-app-backend-sigma.vercel.app";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Socketcontext = createContext<any | null>(null);
@@ -147,6 +147,12 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     useEffect(() => {
 
         const userId = UUIDv4();
+        // const newPeer = new Peer(userId, {
+        //     host: "localhost",
+        //     port: 9000,
+        //     path: "/myapp",
+          
+        // });
         const newPeer = new Peer(userId, {
             host: "https://video-calling-app-frontend.vercel.app",
             port: 443,
