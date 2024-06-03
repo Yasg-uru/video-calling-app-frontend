@@ -159,7 +159,7 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
             path: "/myapp",
             config: {
               iceServers: [
-                { urls: "stun:stun.l.google.com:19302" }, // Public STUN server from Google
+                { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
                 // Optionally add TURN server configuration if required for specific network environments
               ]
             }
