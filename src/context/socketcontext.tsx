@@ -110,7 +110,8 @@ import { v4 as UUIDv4 } from "uuid";
 import { peerReducer } from "../Reducers/PeerReducer";
 import { Add_Peer_Action } from "../Actions/PeerAction";
 // const WS_Server = "http://localhost:4000";
-const WS_Server = "https://video-calling-app-backend-sigma.vercel.app/";
+const WS_Server = "https://video-calling-app-n9uz.onrender.com";
+// const WS_Server = "https://video-calling-app-backend-sigma.vercel.app/";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Socketcontext = createContext<any | null>(null);
@@ -147,23 +148,23 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     useEffect(() => {
 
         const userId = UUIDv4();
-        // const newPeer = new Peer(userId, {
-        //     host: "localhost",
-        //     port: 9000,
-        //     path: "/myapp",
-          
-        // });
         const newPeer = new Peer(userId, {
-            host: "https://video-calling-app-frontend.vercel.app",
-            port: 443,
+            host: "localhost",
+            port: 9000,
             path: "/myapp",
-            config: {
-              iceServers: [
-                { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
-                // Optionally add TURN server configuration if required for specific network environments
-              ]
-            }
+          
         });
+        // const newPeer = new Peer(userId, {
+        //     host: "https://video-calling-app-frontend.vercel.app",
+        //     port: 443,
+        //     path: "/myapp",
+        //     config: {
+        //       iceServers: [
+        //         { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
+        //         // Optionally add TURN server configuration if required for specific network environments
+        //       ]
+        //     }
+        // });
 
         setUser(newPeer);
 
