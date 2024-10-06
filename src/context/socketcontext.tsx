@@ -34,28 +34,26 @@
 //   };
 
 //   const fetchUserStream = async () => {
-  
+
 //       const stream = await navigator.mediaDevices.getUserMedia({
 //         video: true,
 //         audio: true,
 //       });
 //       setStream(stream);
-     
+
 //   };
 
-  
 //   useEffect(() => {
 //     const userid = UUIDv4();
 //     const newpeer = new Peer(userid, {
 //         host: 'localhost',
 //         port: 9000,
 //         path: '/myapp',
-        
+
 //       });
 //     console.log("this is a new peer user :", newpeer);
 //     setuser(newpeer);
-    
-    
+
 //     const enterRoom = ({ roomid }: { roomid: string }) => {
 //       navigate(`room/${roomid}`);
 //     };
@@ -117,99 +115,104 @@ const WS_Server = "https://video-calling-app-n9uz.onrender.com";
 export const Socketcontext = createContext<any | null>(null);
 
 const socket = SocketIoClient(WS_Server, {
-    withCredentials: true,
-    transports: ["polling", "websocket"]
+  withCredentials: true,
+  transports: ["polling", "websocket"],
 });
 
 interface Props {
-    children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export const SocketProvider: React.FC<Props> = ({ children }) => {
+  const navigate = useNavigate(); // will help to programatically handle navigation
 
-    const navigate = useNavigate(); // will help to programatically handle navigation
-    
-    // state variable to store the userId 
-    const [user, setUser] = useState<Peer>(); // new peer user
-    const [stream, setStream] = useState<MediaStream>();
+  // state variable to store the userId
+  const [user, setUser] = useState<Peer>(); // new peer user
+  const [stream, setStream] = useState<MediaStream>();
 
-    const [peers, dispatch] = useReducer(peerReducer, {}); // peers->state
+  const [peers, dispatch] = useReducer(peerReducer, {}); // peers->state
 
-    const fetchParticipantList = ({roomId, participants}: {roomId: string, participants: string[]}) => {
-        console.log("Fetched room participants");
-        console.log(roomId, participants);
+  const fetchParticipantList = ({
+    roomId,
+    participants,
+  }: {
+    roomId: string;
+    participants: string[];
+  }) => {
+    console.log("Fetched room participants");
+    console.log(roomId, participants);
+  };
+
+  const fetchUserFeed = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    setStream(stream);
+  };
+
+  useEffect(() => {
+    const userId = UUIDv4();
+    const newPeer = new Peer(userId, {
+      host: "localhost",
+      port: 9000,
+      path: "/myapp",
+    });
+    // const newPeer = new Peer(userId, {
+    //     host: "https://video-calling-app-frontend.vercel.app",
+    //     port: 443,
+    //     path: "/myapp",
+    //     config: {
+    //       iceServers: [
+    //         { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
+    //         // Optionally add TURN server configuration if required for specific network environments
+    //       ]
+    //     }
+    // });
+
+    setUser(newPeer);
+
+    fetchUserFeed();
+
+    const enterRoom = ({ roomid }: { roomid: string }) => {
+      navigate(`/room/${roomid}`);
+    };
+
+    // we will transfer the user to the room page when we collect an event of room-created from server
+    socket.on("room-created", enterRoom);
+
+    socket.on("get-users", fetchParticipantList);
+  }, []);
+
+  useEffect(() => {
+    if (!user || !stream) {
+      console.log("this is user :", user);
+      console.log("this is stream now:", stream);
+      return;
     }
+    socket.on("user-joined", ({ peerId }) => {
+      const call = user.call(peerId, stream);
+      console.log("Calling the new peer", peerId);
+      call.on("stream", () => {
+        dispatch(Add_Peer_Action(peerId, stream));
+      });
+    });
 
-    const fetchUserFeed = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true});
-        setStream(stream);
-    } 
+    user.on("call", (call) => {
+      // what to do when other peers on the group call you when u joined
+      console.log("receiving a call");
+      call.answer(stream);
+      call.on("stream", () => {
+        dispatch(Add_Peer_Action(call.peer, stream));
+      });
+    });
 
-    useEffect(() => {
+    socket.emit("ready");
+  }, [user, stream]);
 
-        const userId = UUIDv4();
-        const newPeer = new Peer(userId, {
-            host: "localhost",
-            port: 9000,
-            path: "/myapp",
-          
-        });
-        // const newPeer = new Peer(userId, {
-        //     host: "https://video-calling-app-frontend.vercel.app",
-        //     port: 443,
-        //     path: "/myapp",
-        //     config: {
-        //       iceServers: [
-        //         { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
-        //         // Optionally add TURN server configuration if required for specific network environments
-        //       ]
-        //     }
-        // });
-
-        setUser(newPeer);
-
-        fetchUserFeed();
-
-        const enterRoom = ({ roomid} : { roomid: string}) => {
-            navigate(`/room/${roomid}`); 
-        }
-
-        // we will transfer the user to the room page when we collect an event of room-created from server
-        socket.on("room-created", enterRoom);
-
-        socket.on("get-users", fetchParticipantList);
-    }, []);
-
-    useEffect(() => {
-        if(!user || !stream) {
-          
-          console.log("this is user :",user);
-          console.log('this is stream now:',stream)
-           return;
-        }
-        socket.on("user-joined", ({peerId}) => {
-            const call = user.call(peerId, stream);
-            console.log("Calling the new peer", peerId);
-            call.on("stream", () => {
-                dispatch(Add_Peer_Action(peerId, stream));
-            })
-        })
-
-        user.on("call", (call) => {
-            // what to do when other peers on the group call you when u joined
-            console.log("receiving a call");
-            call.answer(stream);
-            call.on("stream", () => {
-                dispatch(Add_Peer_Action(call.peer, stream));
-            })
-        })
-
-        socket.emit("ready");
-    }, [user, stream])
-
-    return (
-        <Socketcontext.Provider value={{ socket, user, stream, peers }}>
-            {children}
-        </Socketcontext.Provider>
-    );
-}
+  return (
+    <Socketcontext.Provider value={{ socket, user, stream, peers }}>
+      {children}
+    </Socketcontext.Provider>
+  );
+};
