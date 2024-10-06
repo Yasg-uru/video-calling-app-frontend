@@ -157,15 +157,22 @@ export const SocketProvider: React.FC<Props> = ({ children }) => {
     //   host: "localhost",
     //   port: 9000,
     //   path: "/myapp",
+    //   config: {
+    //         iceServers: [
+    //           { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
+    //           // Optionally add TURN server configuration if required for specific network environments
+    //         ],
+    //       },
     // });
     const newPeer = new Peer(userId, {
-      host: "https://video-calling-app-frontend.vercel.app",
+      host: "https://peer-server-vedio-calling-app.onrender.com",
       port: 443,
       path: "/myapp",
+      secure: true, // Ensures HTTPS is used
       config: {
         iceServers: [
-          { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server from Google
-          // Optionally add TURN server configuration if required for specific network environments
+          { urls: "stun:stun1.l.google.com:19302" }, // Public STUN server
+          // Add TURN server configuration here if needed
         ],
       },
     });
